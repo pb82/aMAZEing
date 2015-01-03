@@ -20,9 +20,7 @@ local function run(grid, currentCell)
   local totalCells = grid:getTotalCells()
   local cellStack = stack.new()
   local visitedCells = 1
-  
-  log.info("Starting at", currentCell)  
-  
+    
   while visitedCells < totalCells do
     local neighbours = grid:getNeighbours(currentCell.x, currentCell.y)
     if #neighbours > 0 then
