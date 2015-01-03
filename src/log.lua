@@ -1,8 +1,12 @@
 -- ------------------------------------
 -- Simple log output 
 -- ------------------------------------
+local verbose = require("config").verbose
+
 local log = {}
 
+-- Log a table by traversing it's members until they
+-- can be printed
 local function iterateTable(item)
     local first = true
     io.write(" {")
@@ -19,7 +23,12 @@ local function iterateTable(item)
     io.write(" }")
 end
 
+-- Generic log entry point
 local function write(scope, text, item)
+  -- Only log it the verbose flag is set
+  if not verbose then return end
+  
+  -- 
   if type(item) == "string" or type(item) == "number" then
     print(scope .. ": " .. text .. " " .. item)
   elseif type(item) == "table" then

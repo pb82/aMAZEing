@@ -9,17 +9,18 @@ local config = {
     
   -- The rooms of the dungeon
   rooms = {
-    number = 1,
+    number = 3,
     
     -- The maximum size in x and y direction
-    size = 5
+    size = 3
   },
   
   -- The number of iterations to spend on
   -- dead end reduction. The lower this 
   -- number, the less pathways between 
   -- rooms
-  deadEndReduction = 50
+  deadEndReduction = 50,
+  verbose = true
 }
 
 return config

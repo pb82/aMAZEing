@@ -23,7 +23,7 @@ function grid.new(width, height)
     for y = 1, height do
       -- ...and set up the walls. Initially all walls
       -- are up
-      instance.cells[x][y] = {n = 1, s = 1, e = 1, w = 1}
+      instance.cells[x][y] = {n = 1, s = 1, e = 1, w = 1,ln=0,ls=0}
     end
   end
   
@@ -33,6 +33,11 @@ end
 --[[
   Find dead ends and (cells with three walls surrounding them)
   and remove them 
+  
+  TODO: At the moment this function is very inefficient. For
+  every iteration a new list of dead ends is computed. This
+  is not necesarry since the close function could just return
+  the new dead end it's left.
 --]]
 function grid:reduceDeadEnds(maxIterations)
   -- Returns a list of all coordinates of dead ends
@@ -148,51 +153,21 @@ function grid:getCell(coord)
   return self.cells[coord.x][coord.y]
 end
 
+-- A cell is a dead end if it is surrounded by walls on
+-- three sides
 function grid:isDeadEnd(coord)
   local cell = self:getCell(coord)
   return (cell.n + cell.s + cell.e + cell.w) == 3
 end
 
---[[
-  Print the resulting dungeon to stdout
---]]
-function grid:printToStdout()
-  local indexX = true
-  local writtenIndex = false
-  for y = 1, self.height do
-    for z = 0, 3 do
-      for x = 1, self.width do
-        local cell = self.cells[x][y]
-        if z == 0 then
-          if indexX then io.write(" " .. x % 10 .. " ") end
-        elseif z == 1 then
-          io.write("█") 
-          if cell.n == 1 then io.write("█") else io.write(".") end 
-          io.write("█")
-        elseif z == 2 then
-          if cell.w == 1 then io.write("█") else io.write(".") end 
-          if cell.n + cell.s + cell.w + cell.e == 4 then
-            io.write("█")
-          else
-            io.write(".") 
-          end
-          if cell.e == 1 then io.write("█") else io.write(".") end
-        elseif z == 3 then
-          io.write("█") 
-          if cell.s == 1 then io.write("█") else io.write(".") end 
-          io.write("█")
-        end
-      end
-      if z == 2 then io.write(" " .. y) end
-      if z > 0 then io.write("\n") end
-      if indexX then io.write("\n") end
-      indexX = false
-    end
-  end
+-- A locked cell is surrounded by walls on all four sides
+function grid:isLocked(coord)
+  local cell = self:getCell(coord)
+  return (cell.n + cell.s + cell.e + cell.w) == 4
 end
 
-function grid:print2()
-  
+function grid:exists(coord)
+  return self.cells[coord.x] ~= nil and self.cells[coord.x][coord.y] ~= nil
 end
 
 return grid

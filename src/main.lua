@@ -2,10 +2,12 @@
 -- aMAZEing
 -- A maze and dungeon generator
 -- ------------------------------------
-local config  = require("config")
-local stack   = require("stack")
-local grid    = require("grid")
-local log     = require("log")
+local exporter  = require("exporter")
+local config    = require("config")
+local rooms     = require("rooms")
+local stack     = require("stack")
+local grid      = require("grid")
+local log       = require("log")
 
 -- Seed the random number generator
 local function randomize()
@@ -14,16 +16,7 @@ local function randomize()
   math.random()
 end
 
--- Returns a random starting point
-local function getStartingPoint(grid)
-  return {
-    x = math.random(1, grid.width),
-    y = math.random(1, grid.height)
-  }
-end
-
-local function run(grid)
-  local currentCell = getStartingPoint(grid)
+local function run(grid, currentCell)
   local totalCells = grid:getTotalCells()
   local cellStack = stack.new()
   local visitedCells = 1
@@ -64,9 +57,28 @@ end
 local function main()
   randomize()
   local g = grid.new(config.width, config.height)
-  run(g)
+  local r = rooms.placeRooms(g,config.rooms.number,config.rooms.size)
+    
+  -- Iterate over all cells in the grid
+  for x = 1, g.width do
+    for y = 1, g.height do
+      local coord = {x=x, y=y}
+      -- If a cell is surrounded only by walls
+      if g:isLocked(coord) then
+        -- run the maze generator 
+        run(g, coord)
+      end
+    end
+  end  
+  
+  rooms.connectRooms(g, r)
+  
   g:reduceDeadEnds(config.deadEndReduction)
-  g:printToStdout()
+  
+  -- Write to stdout
+  exporter.floor = " "
+  exporter.wall = "█"
+  exporter:stdout(g)
 end
 
 main()
